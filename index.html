@@ -211,7 +211,7 @@
                         x0: currentTick,
                         x1: currentTick,
                         y0: 0,
-                        y1: Math.max(...liquidity) * 1.1,
+                        y1: Math.max(...harb) * 1.1,
                         line: {
                             color: 'black',
                             width: 2,
@@ -244,7 +244,6 @@
         function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction, button) {
             var isETHDisplayed = button.getAttribute('data-isethdisplayed') === 'true';
             var currentData = isETHDisplayed ? harb : eth;
-            var textData = isETHDisplayed ? eth : harb;
             var data = [
                 {
                     x: tick_starts.map((start, i) => start + widths[i] / 2),
@@ -255,21 +254,21 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: textData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ${isETHDisplayed ? 'ETH' : 'HARB'}, and ${isETHDisplayed ? 'HARB' : 'ETH'} Distribution - ${precedingAction}`,
+                title: `Liquidity, ${isETHDisplayed ? 'HARB' : 'ETH'}, and ${isETHDisplayed ? 'ETH' : 'HARB'} Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
                     ticktext: tick_starts.map(String).concat([`${currentTick}\n(Current Price)`], tick_ends.map(String))
                 },
                 yaxis: {
-                    title: `Liquidity (${isETHDisplayed ? 'ETH' : 'HARB'})`
+                    title: `Liquidity (${isETHDisplayed ? 'HARB' : 'ETH'})`
                 },
                 shapes: [
                     {
@@ -289,7 +288,7 @@
             };
 
             button.setAttribute('data-isethdisplayed', (!isETHDisplayed).toString());
-            Plotly.newPlot(chart, data, layout);
+            Plotly.react(chart, data, layout);  // Use Plotly.react to update the existing chart
         }
     </script>
 </body>
