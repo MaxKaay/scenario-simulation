@@ -24,14 +24,12 @@
             position: sticky;
             top: 0;
         }
-        input[type="number"], input[type="text"] {
+        input[type="number"], input[type="text"], textarea {
             width: 100%;
             box-sizing: border-box;
         }
         textarea {
-            width: 100%;
             height: 100px;
-            box-sizing: border-box;
         }
     </style>
 </head>
@@ -90,16 +88,16 @@
                 document.getElementById('currentTick').value = parseFloat(values[1]);
                 document.getElementById('floorTickLower').value = parseFloat(values[2]);
                 document.getElementById('floorTickUpper').value = parseFloat(values[3]);
-                document.getElementById('floorEth').value = parseFloat(values[4]);
-                document.getElementById('floorHarb').value = parseFloat(values[5]);
+                document.getElementById('floorEth').value = parseFloat(values[4]) / 1e18;
+                document.getElementById('floorHarb').value = parseFloat(values[5]) / 1e18;
                 document.getElementById('anchorTickLower').value = parseFloat(values[6]);
                 document.getElementById('anchorTickUpper').value = parseFloat(values[7]);
-                document.getElementById('anchorEth').value = parseFloat(values[8]);
-                document.getElementById('anchorHarb').value = parseFloat(values[9]);
+                document.getElementById('anchorEth').value = parseFloat(values[8]) / 1e18;
+                document.getElementById('anchorHarb').value = parseFloat(values[9]) / 1e18;
                 document.getElementById('discoveryTickLower').value = parseFloat(values[10]);
                 document.getElementById('discoveryTickUpper').value = parseFloat(values[11]);
-                document.getElementById('discoveryEth').value = parseFloat(values[12]);
-                document.getElementById('discoveryHarb').value = parseFloat(values[13]);
+                document.getElementById('discoveryEth').value = parseFloat(values[12]) / 1e18;
+                document.getElementById('discoveryHarb').value = parseFloat(values[13]) / 1e18;
             }
         }
 
@@ -113,16 +111,16 @@
                     const currentTick = parseFloat(values[1]);
                     const floorTickLower = parseFloat(values[2]);
                     const floorTickUpper = parseFloat(values[3]);
-                    const floorEth = parseFloat(values[4]);
-                    const floorHarb = parseFloat(values[5]);
+                    const floorEth = parseFloat(values[4]) / 1e18;
+                    const floorHarb = parseFloat(values[5]) / 1e18;
                     const anchorTickLower = parseFloat(values[6]);
                     const anchorTickUpper = parseFloat(values[7]);
-                    const anchorEth = parseFloat(values[8]);
-                    const anchorHarb = parseFloat(values[9]);
+                    const anchorEth = parseFloat(values[8]) / 1e18;
+                    const anchorHarb = parseFloat(values[9]) / 1e18;
                     const discoveryTickLower = parseFloat(values[10]);
                     const discoveryTickUpper = parseFloat(values[11]);
-                    const discoveryEth = parseFloat(values[12]);
-                    const discoveryHarb = parseFloat(values[13]);
+                    const discoveryEth = parseFloat(values[12]) / 1e18;
+                    const discoveryHarb = parseFloat(values[13]) / 1e18;
 
                     simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
                 }
@@ -231,11 +229,64 @@
             var newChart = document.createElement('div');
             newChart.style.width = '100%';
             newChart.style.height = '600px';
+            var toggleButton = document.createElement('button');
+            toggleButton.textContent = 'Toggle ETH/HARB';
+            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction); };
             newDiv.appendChild(newHeader);
+            newDiv.appendChild(toggleButton);
             newDiv.appendChild(newChart);
             document.getElementById('simulations').appendChild(newDiv);
 
             Plotly.newPlot(newChart, data, layout);
+        }
+
+        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction) {
+            var currentData = chart.data[0].text[0].includes('ETH') ? harb : eth;
+            var textData = currentData === eth ? harb : eth;
+            var data = [
+                {
+                    x: tick_starts.map((start, i) => start + widths[i] / 2),
+                    y: currentData,
+                    width: widths,
+                    type: 'bar',
+                    marker: {
+                        color: ['green', 'red', 'blue'],
+                        opacity: 0.6
+                    },
+                    text: textData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    hoverinfo: 'text',
+                    name: 'Liquidity'
+                }
+            ];
+
+            var layout = {
+                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction}`,
+                xaxis: {
+                    title: 'Ticks',
+                    tickvals: tick_starts.concat([currentTick], tick_ends),
+                    ticktext: tick_starts.map(String).concat([`${currentTick}\n(Current Price)`], tick_ends.map(String))
+                },
+                yaxis: {
+                    title: 'Liquidity'
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: currentTick,
+                        x1: currentTick,
+                        y0: 0,
+                        y1: Math.max(...currentData) * 1.1,
+                        line: {
+                            color: 'black',
+                            width: 2,
+                            dash: 'dash'
+                        },
+                        name: 'Current Tick'
+                    }
+                ]
+            };
+
+            Plotly.newPlot(chart, data, layout);
         }
     </script>
 </body>
