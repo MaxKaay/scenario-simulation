@@ -231,7 +231,8 @@
             newChart.style.height = '600px';
             var toggleButton = document.createElement('button');
             toggleButton.textContent = 'Toggle ETH/HARB';
-            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction, !isETHDisplayed); };
+            toggleButton.setAttribute('data-isethdisplayed', 'false');
+            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction, toggleButton); };
             newDiv.appendChild(newHeader);
             newDiv.appendChild(toggleButton);
             newDiv.appendChild(newChart);
@@ -240,9 +241,10 @@
             Plotly.newPlot(newChart, data, layout);
         }
 
-        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction, isETHDisplayed) {
-            var currentData = isETHDisplayed ? eth : harb;
-            var textData = isETHDisplayed ? harb : eth;
+        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction, button) {
+            var isETHDisplayed = button.getAttribute('data-isethdisplayed') === 'true';
+            var currentData = isETHDisplayed ? harb : eth;
+            var textData = isETHDisplayed ? eth : harb;
             var data = [
                 {
                     x: tick_starts.map((start, i) => start + widths[i] / 2),
@@ -253,14 +255,14 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: textData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ${isETHDisplayed ? 'ETH' : 'HARB'}, and ${isETHDisplayed ? 'HARB' : 'ETH'} Distribution - ${precedingAction}`,
+                title: `Liquidity, ${isETHDisplayed ? 'HARB' : 'ETH'}, and ${isETHDisplayed ? 'ETH' : 'HARB'} Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
@@ -286,6 +288,7 @@
                 ]
             };
 
+            button.setAttribute('data-isethdisplayed', (!isETHDisplayed).toString());
             Plotly.newPlot(chart, data, layout);
         }
     </script>
