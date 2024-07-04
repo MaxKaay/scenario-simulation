@@ -203,7 +203,7 @@
                     ticktext: tick_starts.map(String).concat([`${currentTick}\n(Current Price)`], tick_ends.map(String))
                 },
                 yaxis: {
-                    title: 'Liquidity'
+                    title: 'Liquidity (HARB)'
                 },
                 shapes: [
                     {
@@ -255,21 +255,21 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: textData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ${isETHDisplayed ? 'HARB' : 'ETH'}, and ${isETHDisplayed ? 'ETH' : 'HARB'} Distribution - ${precedingAction}`,
+                title: `Liquidity, ${isETHDisplayed ? 'ETH' : 'HARB'}, and ${isETHDisplayed ? 'HARB' : 'ETH'} Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
                     ticktext: tick_starts.map(String).concat([`${currentTick}\n(Current Price)`], tick_ends.map(String))
                 },
                 yaxis: {
-                    title: 'Liquidity'
+                    title: `Liquidity (${isETHDisplayed ? 'ETH' : 'HARB'})`
                 },
                 shapes: [
                     {
