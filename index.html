@@ -182,14 +182,14 @@
             var data = [
                 {
                     x: tick_starts.map((start, i) => start + widths[i] / 2),
-                    y: liquidity,
+                    y: harb,
                     width: widths,
                     type: 'bar',
                     marker: {
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: eth.map((e, i) => `ETH: ${e.toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: harb.map((h, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${h.toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
@@ -231,7 +231,7 @@
             newChart.style.height = '600px';
             var toggleButton = document.createElement('button');
             toggleButton.textContent = 'Toggle ETH/HARB';
-            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction); };
+            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction, !isETHDisplayed); };
             newDiv.appendChild(newHeader);
             newDiv.appendChild(toggleButton);
             newDiv.appendChild(newChart);
@@ -240,10 +240,9 @@
             Plotly.newPlot(newChart, data, layout);
         }
 
-        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction) {
-            var isETHDisplayed = chart.data[0].text[0].includes('ETH');
-            var currentData = isETHDisplayed ? harb : eth;
-            var dataText = isETHDisplayed ? eth : harb;
+        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction, isETHDisplayed) {
+            var currentData = isETHDisplayed ? eth : harb;
+            var textData = isETHDisplayed ? harb : eth;
             var data = [
                 {
                     x: tick_starts.map((start, i) => start + widths[i] / 2),
@@ -254,14 +253,14 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: currentData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: textData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ${isETHDisplayed ? 'HARB' : 'ETH'}, and ${isETHDisplayed ? 'ETH' : 'HARB'} Distribution - ${precedingAction}`,
+                title: `Liquidity, ${isETHDisplayed ? 'ETH' : 'HARB'}, and ${isETHDisplayed ? 'HARB' : 'ETH'} Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
