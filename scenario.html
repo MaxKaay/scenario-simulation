@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide - Setup of Liquidity after Buying 50,000 HARB</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h2>Slide - Setup of Liquidity after Buying 50,000 HARB</h2>
+    <div id="chart1" style="width:100%;height:600px;"></div>
+
+    <script>
+        // Data for Scenario 1 after buying 50,000 HARB
+        var tick_starts = [114000, 125000, 127000];
+        var tick_ends = [125000, 127000, 127400];
+        var liquidity = [149655239.788211518, 10884017.439142656, 264364222.992794932];
+        var eth = [0.000000000000000000, 1.168600000000000000, 9.146256814356763];
+        var harb = [32784784.840022128, 246371.8046884374, 0.000000000000000000];
+        var current_tick = 125800;  // Assuming new tick calculation after price change
+
+        // Calculate bar widths based on tick ranges
+        var widths = tick_ends.map((end, i) => end - tick_starts[i]);
+
+        var data = [
+            {
+                x: tick_starts.map((start, i) => start + widths[i] / 2),
+                y: liquidity,
+                width: widths,
+                type: 'bar',
+                marker: {
+                    color: ['green', 'red', 'blue'],
+                    opacity: 0.6
+                },
+                text: eth.map((e, i) => `ETH: ${e.toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                hoverinfo: 'text',
+                name: 'Liquidity'
+            }
+        ];
+
+        var layout = {
+            title: 'Liquidity, ETH, and HARB Distribution - Slide - Setup of Liquidity after Buying 50,000 HARB',
+            xaxis: {
+                title: 'Ticks',
+                tickvals: tick_starts.concat([current_tick], tick_ends),
+                ticktext: tick_starts.map(String).concat([`${current_tick}\n(Current Price)`], tick_ends.map(String))
+            },
+            yaxis: {
+                title: 'Liquidity'
+            },
+            shapes: [
+                {
+                    type: 'line',
+                    x0: current_tick,
+                    x1: current_tick,
+                    y0: 0,
+                    y1: Math.max(...liquidity) * 1.1,
+                    line: {
+                        color: 'black',
+                        width: 2,
+                        dash: 'dash'
+                    },
+                    name: 'Current Tick'
+                }
+            ]
+        };
+
+        Plotly.newPlot('chart1', data, layout);
+    </script>
+</body>
+</html>
