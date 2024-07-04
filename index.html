@@ -220,7 +220,7 @@
                         name: 'Current Tick'
                     }
                 ]
-            };
+            ];
 
             var newDiv = document.createElement('div');
             newDiv.style.marginBottom = '20px';
@@ -232,7 +232,7 @@
             var toggleButton = document.createElement('button');
             toggleButton.textContent = 'Toggle ETH/HARB';
             toggleButton.setAttribute('data-isethdisplayed', 'false');
-            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, widths, currentTick, precedingAction, toggleButton); };
+            toggleButton.onclick = function() { toggleData(newChart, eth, harb, tick_starts, tick_ends, widths, currentTick, precedingAction, toggleButton); };
             newDiv.appendChild(newHeader);
             newDiv.appendChild(toggleButton);
             newDiv.appendChild(newChart);
@@ -241,7 +241,7 @@
             Plotly.newPlot(newChart, data, layout);
         }
 
-        function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction, button) {
+        function toggleData(chart, eth, harb, tick_starts, tick_ends, widths, currentTick, precedingAction, button) {
             var isETHDisplayed = button.getAttribute('data-isethdisplayed') === 'true';
             var currentData = isETHDisplayed ? harb : eth;
             var data = [
