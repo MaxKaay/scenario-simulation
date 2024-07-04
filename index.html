@@ -3,69 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slide - Setup of Liquidity after Buying 50,000 HARB</title>
+    <title>Liquidity Position Simulator</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        input[type="number"] {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
-    <h2>Slide - Setup of Liquidity after Buying 50,000 HARB</h2>
-    <div id="chart1" style="width:100%;height:600px;"></div>
+    <h2>Liquidity Position Simulator</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>precedingAction</th>
+                <th>currentTick</th>
+                <th>floorTickLower</th>
+                <th>floorTickUpper</th>
+                <th>floorEth</th>
+                <th>floorHarb</th>
+                <th>anchorTickLower</th>
+                <th>anchorTickUpper</th>
+                <th>anchorEth</th>
+                <th>anchorHarb</th>
+                <th>discoveryTickLower</th>
+                <th>discoveryTickUpper</th>
+                <th>discoveryEth</th>
+                <th>discoveryHarb</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" id="precedingAction" placeholder="Enter Action"></td>
+                <td><input type="number" id="currentTick"></td>
+                <td><input type="number" id="floorTickLower"></td>
+                <td><input type="number" id="floorTickUpper"></td>
+                <td><input type="number" id="floorEth"></td>
+                <td><input type="number" id="floorHarb"></td>
+                <td><input type="number" id="anchorTickLower"></td>
+                <td><input type="number" id="anchorTickUpper"></td>
+                <td><input type="number" id="anchorEth"></td>
+                <td><input type="number" id="anchorHarb"></td>
+                <td><input type="number" id="discoveryTickLower"></td>
+                <td><input type="number" id="discoveryTickUpper"></td>
+                <td><input type="number" id="discoveryEth"></td>
+                <td><input type="number" id="discoveryHarb"></td>
+                <td><button onclick="simulate()">Simulate</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="chart" style="width:100%;height:600px;"></div>
 
     <script>
-        // Data for Scenario 1 after buying 50,000 HARB
-        var tick_starts = [114000, 125000, 127000];
-        var tick_ends = [125000, 127000, 127400];
-        var liquidity = [149655239.788211518, 10884017.439142656, 264364222.992794932];
-        var eth = [0.000000000000000000, 1.168600000000000000, 9.146256814356763];
-        var harb = [32784784.840022128, 246371.8046884374, 0.000000000000000000];
-        var current_tick = 125800;  // Assuming new tick calculation after price change
+        function simulate() {
+            var precedingAction = document.getElementById('precedingAction').value;
+            var currentTick = parseFloat(document.getElementById('currentTick').value);
+            var floorTickLower = parseFloat(document.getElementById('floorTickLower').value);
+            var floorTickUpper = parseFloat(document.getElementById('floorTickUpper').value);
+            var floorEth = parseFloat(document.getElementById('floorEth').value);
+            var floorHarb = parseFloat(document.getElementById('floorHarb').value);
+            var anchorTickLower = parseFloat(document.getElementById('anchorTickLower').value);
+            var anchorTickUpper = parseFloat(document.getElementById('anchorTickUpper').value);
+            var anchorEth = parseFloat(document.getElementById('anchorEth').value);
+            var anchorHarb = parseFloat(document.getElementById('anchorHarb').value);
+            var discoveryTickLower = parseFloat(document.getElementById('discoveryTickLower').value);
+            var discoveryTickUpper = parseFloat(document.getElementById('discoveryTickUpper').value);
+            var discoveryEth = parseFloat(document.getElementById('discoveryEth').value);
+            var discoveryHarb = parseFloat(document.getElementById('discoveryHarb').value);
 
-        // Calculate bar widths based on tick ranges
-        var widths = tick_ends.map((end, i) => end - tick_starts[i]);
+            // Calculate bar widths based on tick ranges
+            var tick_starts = [discoveryTickLower, anchorTickLower, floorTickLower];
+            var tick_ends = [discoveryTickUpper, anchorTickUpper, floorTickUpper];
+            var liquidity = [
+                discoveryEth + discoveryHarb,
+                anchorEth + anchorHarb,
+                floorEth + floorHarb
+            ];
+            var eth = [discoveryEth, anchorEth, floorEth];
+            var harb = [discoveryHarb, anchorHarb, floorHarb];
 
-        var data = [
-            {
-                x: tick_starts.map((start, i) => start + widths[i] / 2),
-                y: liquidity,
-                width: widths,
-                type: 'bar',
-                marker: {
-                    color: ['green', 'red', 'blue'],
-                    opacity: 0.6
-                },
-                text: eth.map((e, i) => `ETH: ${e.toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
-                hoverinfo: 'text',
-                name: 'Liquidity'
-            }
-        ];
+            var widths = tick_ends.map((end, i) => end - tick_starts[i]);
 
-        var layout = {
-            title: 'Liquidity, ETH, and HARB Distribution - Slide - Setup of Liquidity after Buying 50,000 HARB',
-            xaxis: {
-                title: 'Ticks',
-                tickvals: tick_starts.concat([current_tick], tick_ends),
-                ticktext: tick_starts.map(String).concat([`${current_tick}\n(Current Price)`], tick_ends.map(String))
-            },
-            yaxis: {
-                title: 'Liquidity'
-            },
-            shapes: [
+            var data = [
                 {
-                    type: 'line',
-                    x0: current_tick,
-                    x1: current_tick,
-                    y0: 0,
-                    y1: Math.max(...liquidity) * 1.1,
-                    line: {
-                        color: 'black',
-                        width: 2,
-                        dash: 'dash'
+                    x: tick_starts.map((start, i) => start + widths[i] / 2),
+                    y: liquidity,
+                    width: widths,
+                    type: 'bar',
+                    marker: {
+                        color: ['green', 'red', 'blue'],
+                        opacity: 0.6
                     },
-                    name: 'Current Tick'
+                    text: eth.map((e, i) => `ETH: ${e.toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    hoverinfo: 'text',
+                    name: 'Liquidity'
                 }
-            ]
-        };
+            ];
 
-        Plotly.newPlot('chart1', data, layout);
+            var layout = {
+                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction}`,
+                xaxis: {
+                    title: 'Ticks',
+                    tickvals: tick_starts.concat([currentTick], tick_ends),
+                    ticktext: tick_starts.map(String).concat([`${currentTick}\n(Current Price)`], tick_ends.map(String))
+                },
+                yaxis: {
+                    title: 'Liquidity'
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        x0: currentTick,
+                        x1: currentTick,
+                        y0: 0,
+                        y1: Math.max(...liquidity) * 1.1,
+                        line: {
+                            color: 'black',
+                            width: 2,
+                            dash: 'dash'
+                        },
+                        name: 'Current Tick'
+                    }
+                ]
+            };
+
+            Plotly.newPlot('chart', data, layout);
+        }
     </script>
 </body>
 </html>
