@@ -72,12 +72,12 @@
             </tr>
         </tbody>
     </table>
-    <div id="chart" style="width:100%;height:600px;"></div>
+    <div id="simulations"></div>
 
     <script>
         function parseRow() {
             const input = document.getElementById('precedingAction').value;
-            const values = input.split('\\t');
+            const values = input.split('\t');
             if (values.length >= 14) {
                 document.getElementById('precedingAction').value = values[0];
                 document.getElementById('currentTick').value = parseFloat(values[1]);
@@ -168,7 +168,34 @@
                 ]
             };
 
-            Plotly.newPlot('chart', data, layout);
+            var newDiv = document.createElement('div');
+            newDiv.style.marginBottom = '20px';
+            var newHeader = document.createElement('h3');
+            newHeader.textContent = `Liquidity, ETH, and HARB Distribution - ${precedingAction}`;
+            var newChart = document.createElement('div');
+            newChart.style.width = '100%';
+            newChart.style.height = '600px';
+            newDiv.appendChild(newHeader);
+            newDiv.appendChild(newChart);
+            document.getElementById('simulations').appendChild(newDiv);
+
+            Plotly.newPlot(newChart, data, layout);
+
+            // Clear input fields
+            document.getElementById('precedingAction').value = '';
+            document.getElementById('currentTick').value = '';
+            document.getElementById('floorTickLower').value = '';
+            document.getElementById('floorTickUpper').value = '';
+            document.getElementById('floorEth').value = '';
+            document.getElementById('floorHarb').value = '';
+            document.getElementById('anchorTickLower').value = '';
+            document.getElementById('anchorTickUpper').value = '';
+            document.getElementById('anchorEth').value = '';
+            document.getElementById('anchorHarb').value = '';
+            document.getElementById('discoveryTickLower').value = '';
+            document.getElementById('discoveryTickUpper').value = '';
+            document.getElementById('discoveryEth').value = '';
+            document.getElementById('discoveryHarb').value = '';
         }
     </script>
 </body>
