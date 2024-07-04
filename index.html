@@ -241,8 +241,9 @@
         }
 
         function toggleData(chart, eth, harb, tick_starts, widths, currentTick, precedingAction) {
-            var currentData = chart.data[0].text[0].includes('ETH') ? harb : eth;
-            var textData = currentData === eth ? harb : eth;
+            var isETHDisplayed = chart.data[0].text[0].includes('ETH');
+            var currentData = isETHDisplayed ? harb : eth;
+            var dataText = isETHDisplayed ? eth : harb;
             var data = [
                 {
                     x: tick_starts.map((start, i) => start + widths[i] / 2),
@@ -253,14 +254,14 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: textData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: currentData.map((e, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction}`,
+                title: `Liquidity, ${isETHDisplayed ? 'HARB' : 'ETH'}, and ${isETHDisplayed ? 'ETH' : 'HARB'} Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
