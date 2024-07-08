@@ -82,11 +82,11 @@
                     const harbDifference = (floorHarb + anchorHarb + discoveryHarb) - (prevFloorHarb + prevAnchorHarb + prevDiscoveryHarb);
 
                     if (precedingAction.startsWith('buy')) {
-                        actionAmount = precedingAction;
-                        additionalInfo = `(${harbDifference.toFixed(18)} HARB bought)`;
+                        actionAmount = `${precedingAction} ETH`;
+                        additionalInfo = `(${Math.abs(harbDifference).toFixed(18)} HARB bought)`;
                     } else if (precedingAction.startsWith('sell')) {
-                        actionAmount = precedingAction;
-                        additionalInfo = `(${ethDifference.toFixed(18)} ETH bought)`;
+                        actionAmount = `${precedingAction} HARB`;
+                        additionalInfo = `(${Math.abs(ethDifference).toFixed(18)} ETH bought)`;
                     } else {
                         actionAmount = precedingAction;
                     }
@@ -150,8 +150,7 @@
                             color: 'black',
                             width: 2,
                             dash: 'dash'
-                        },
-                        name: 'Current Tick'
+                        }
                     }
                 ]
             };
@@ -215,8 +214,7 @@
                             color: 'black',
                             width: 2,
                             dash: 'dash'
-                        },
-                        name: 'Current Tick'
+                        }
                     }
                 ]
             };
