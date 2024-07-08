@@ -9,27 +9,19 @@
         body {
             font-family: Arial, sans-serif;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-        }
-        input[type="number"], input[type="text"], textarea {
+        textarea {
             width: 100%;
             box-sizing: border-box;
-        }
-        textarea {
             height: 100px;
+        }
+        button {
+            margin-top: 10px;
+        }
+        .chart-container {
+            margin-bottom: 20px;
+        }
+        .chart-container h3 {
+            margin: 0;
         }
     </style>
 </head>
@@ -57,6 +49,8 @@
         function parseAndSimulateCSV() {
             const csvInput = document.getElementById('csvInput').value;
             const data = parseCSV(csvInput);
+            let previousRow = null;
+
             data.forEach(row => {
                 const precedingAction = row.precedingAction;
                 const currentTick = parseFloat(row.currentTick);
@@ -73,15 +67,40 @@
                 const discoveryEth = parseFloat(row.discoveryEth) / 1e18;
                 const discoveryHarb = parseFloat(row.discoveryHarb) / 1e18;
 
-                simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
+                let actionAmount = '';
+                let additionalInfo = '';
+
+                if (previousRow) {
+                    const prevFloorEth = parseFloat(previousRow.floorEth) / 1e18;
+                    const prevFloorHarb = parseFloat(previousRow.floorHarb) / 1e18;
+                    const prevAnchorEth = parseFloat(previousRow.anchorEth) / 1e18;
+                    const prevAnchorHarb = parseFloat(previousRow.anchorHarb) / 1e18;
+                    const prevDiscoveryEth = parseFloat(previousRow.discoveryEth) / 1e18;
+                    const prevDiscoveryHarb = parseFloat(previousRow.discoveryHarb) / 1e18;
+
+                    const ethDifference = (floorEth + anchorEth + discoveryEth) - (prevFloorEth + prevAnchorEth + prevDiscoveryEth);
+                    const harbDifference = (floorHarb + anchorHarb + discoveryHarb) - (prevFloorHarb + prevAnchorHarb + prevDiscoveryHarb);
+
+                    if (precedingAction.startsWith('buy')) {
+                        actionAmount = precedingAction;
+                        additionalInfo = `(${harbDifference.toFixed(18)} HARB bought)`;
+                    } else if (precedingAction.startsWith('sell')) {
+                        actionAmount = precedingAction;
+                        additionalInfo = `(${ethDifference.toFixed(18)} ETH bought)`;
+                    } else {
+                        actionAmount = precedingAction;
+                    }
+                }
+
+                simulate(actionAmount, additionalInfo, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
+                previousRow = row;
             });
 
             // Clear input field after processing
             document.getElementById('csvInput').value = '';
         }
 
-        function simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb) {
-            // Calculate bar widths based on tick ranges
+        function simulate(precedingAction, additionalInfo, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb) {
             var tick_starts = [discoveryTickLower, anchorTickLower, floorTickLower];
             var tick_ends = [discoveryTickUpper, anchorTickUpper, floorTickUpper];
             var liquidity = [
@@ -93,24 +112,6 @@
             var harb = [discoveryHarb, anchorHarb, floorHarb];
 
             var widths = tick_ends.map((end, i) => end - tick_starts[i]);
-
-            // Determine the buy or sell amount
-            let actionAmount = '';
-            let additionalInfo = '';
-
-            if (precedingAction.startsWith('buy')) {
-                const buyAmount = parseFloat(precedingAction.split(' ')[1]) / 1e18;
-                const harbBought = buyAmount; // Assuming buy order converts ETH to HARB
-                additionalInfo = `(${harbBought.toFixed(18)} HARB bought)`;
-                actionAmount = `Buy ${buyAmount.toFixed(18)}`;
-            } else if (precedingAction.startsWith('sell')) {
-                const sellAmount = parseFloat(precedingAction.split(' ')[1]) / 1e18;
-                const ethBought = sellAmount; // Assuming sell order converts HARB to ETH
-                additionalInfo = `(${ethBought.toFixed(18)} ETH bought)`;
-                actionAmount = `Sell ${sellAmount.toFixed(18)}`;
-            } else {
-                actionAmount = precedingAction;
-            }
 
             var data = [
                 {
@@ -129,7 +130,7 @@
             ];
 
             var layout = {
-                title: `Liquidity, ETH, and HARB Distribution - ${actionAmount} ${additionalInfo}`,
+                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction} ${additionalInfo}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
@@ -156,9 +157,9 @@
             };
 
             var newDiv = document.createElement('div');
-            newDiv.style.marginBottom = '20px';
+            newDiv.className = 'chart-container';
             var newHeader = document.createElement('h3');
-            newHeader.textContent = `Liquidity, ETH, and HARB Distribution - ${actionAmount} ${additionalInfo}`;
+            newHeader.textContent = layout.title;
             var newChart = document.createElement('div');
             newChart.style.width = '100%';
             newChart.style.height = '600px';
