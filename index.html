@@ -35,134 +35,49 @@
 </head>
 <body>
     <h2>Liquidity Position Simulator</h2>
-    <textarea id="multiRowInput" placeholder="Paste multiple rows here..."></textarea>
-    <button onclick="parseAndSimulateRows()">Simulate Multiple Rows</button>
-    <table>
-        <thead>
-            <tr>
-                <th>precedingAction</th>
-                <th>currentTick</th>
-                <th>floorTickLower</th>
-                <th>floorTickUpper</th>
-                <th>floorEth</th>
-                <th>floorHarb</th>
-                <th>anchorTickLower</th>
-                <th>anchorTickUpper</th>
-                <th>anchorEth</th>
-                <th>anchorHarb</th>
-                <th>discoveryTickLower</th>
-                <th>discoveryTickUpper</th>
-                <th>discoveryEth</th>
-                <th>discoveryHarb</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><input type="text" id="precedingAction" oninput="parseRow()"></td>
-                <td><input type="number" id="currentTick"></td>
-                <td><input type="number" id="floorTickLower"></td>
-                <td><input type="number" id="floorTickUpper"></td>
-                <td><input type="number" id="floorEth"></td>
-                <td><input type="number" id="floorHarb"></td>
-                <td><input type="number" id="anchorTickLower"></td>
-                <td><input type="number" id="anchorTickUpper"></td>
-                <td><input type="number" id="anchorEth"></td>
-                <td><input type="number" id="anchorHarb"></td>
-                <td><input type="number" id="discoveryTickLower"></td>
-                <td><input type="number" id="discoveryTickUpper"></td>
-                <td><input type="number" id="discoveryEth"></td>
-                <td><input type="number" id="discoveryHarb"></td>
-                <td><button onclick="simulateSingleRow()">Simulate Single Row</button></td>
-            </tr>
-        </tbody>
-    </table>
+    <textarea id="csvInput" placeholder="Paste CSV formatted data here..."></textarea>
+    <button onclick="parseAndSimulateCSV()">Simulate CSV Data</button>
     <div id="simulations"></div>
 
     <script>
-        function parseRow() {
-            const input = document.getElementById('precedingAction').value;
-            const values = input.split('\t');
-            if (values.length >= 14) {
-                document.getElementById('precedingAction').value = values[0];
-                document.getElementById('currentTick').value = parseFloat(values[1]);
-                document.getElementById('floorTickLower').value = parseFloat(values[2]);
-                document.getElementById('floorTickUpper').value = parseFloat(values[3]);
-                document.getElementById('floorEth').value = parseFloat(values[4]) / 1e18;
-                document.getElementById('floorHarb').value = parseFloat(values[5]) / 1e18;
-                document.getElementById('anchorTickLower').value = parseFloat(values[6]);
-                document.getElementById('anchorTickUpper').value = parseFloat(values[7]);
-                document.getElementById('anchorEth').value = parseFloat(values[8]) / 1e18;
-                document.getElementById('anchorHarb').value = parseFloat(values[9]) / 1e18;
-                document.getElementById('discoveryTickLower').value = parseFloat(values[10]);
-                document.getElementById('discoveryTickUpper').value = parseFloat(values[11]);
-                document.getElementById('discoveryEth').value = parseFloat(values[12]) / 1e18;
-                document.getElementById('discoveryHarb').value = parseFloat(values[13]) / 1e18;
-            }
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = lines.slice(1).map(line => {
+                const values = line.split(',').map(v => v.trim());
+                const entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = values[index];
+                });
+                return entry;
+            });
+            return data;
         }
 
-        function parseAndSimulateRows() {
-            const input = document.getElementById('multiRowInput').value.trim();
-            const rows = input.split('\n');
-            rows.forEach(row => {
-                const values = row.split('\t');
-                if (values.length >= 14) {
-                    const precedingAction = values[0];
-                    const currentTick = parseFloat(values[1]);
-                    const floorTickLower = parseFloat(values[2]);
-                    const floorTickUpper = parseFloat(values[3]);
-                    const floorEth = parseFloat(values[4]) / 1e18;
-                    const floorHarb = parseFloat(values[5]) / 1e18;
-                    const anchorTickLower = parseFloat(values[6]);
-                    const anchorTickUpper = parseFloat(values[7]);
-                    const anchorEth = parseFloat(values[8]) / 1e18;
-                    const anchorHarb = parseFloat(values[9]) / 1e18;
-                    const discoveryTickLower = parseFloat(values[10]);
-                    const discoveryTickUpper = parseFloat(values[11]);
-                    const discoveryEth = parseFloat(values[12]) / 1e18;
-                    const discoveryHarb = parseFloat(values[13]) / 1e18;
+        function parseAndSimulateCSV() {
+            const csvInput = document.getElementById('csvInput').value;
+            const data = parseCSV(csvInput);
+            data.forEach(row => {
+                const precedingAction = row.precedingAction;
+                const currentTick = parseFloat(row.currentTick);
+                const floorTickLower = parseFloat(row.floorTickLower);
+                const floorTickUpper = parseFloat(row.floorTickUpper);
+                const floorEth = parseFloat(row.floorEth) / 1e18;
+                const floorHarb = parseFloat(row.floorHarb) / 1e18;
+                const anchorTickLower = parseFloat(row.anchorTickLower);
+                const anchorTickUpper = parseFloat(row.anchorTickUpper);
+                const anchorEth = parseFloat(row.anchorEth) / 1e18;
+                const anchorHarb = parseFloat(row.anchorHarb) / 1e18;
+                const discoveryTickLower = parseFloat(row.discoveryTickLower);
+                const discoveryTickUpper = parseFloat(row.discoveryTickUpper);
+                const discoveryEth = parseFloat(row.discoveryEth) / 1e18;
+                const discoveryHarb = parseFloat(row.discoveryHarb) / 1e18;
 
-                    simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
-                }
+                simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
             });
 
             // Clear input field after processing
-            document.getElementById('multiRowInput').value = '';
-        }
-
-        function simulateSingleRow() {
-            const precedingAction = document.getElementById('precedingAction').value;
-            const currentTick = parseFloat(document.getElementById('currentTick').value);
-            const floorTickLower = parseFloat(document.getElementById('floorTickLower').value);
-            const floorTickUpper = parseFloat(document.getElementById('floorTickUpper').value);
-            const floorEth = parseFloat(document.getElementById('floorEth').value);
-            const floorHarb = parseFloat(document.getElementById('floorHarb').value);
-            const anchorTickLower = parseFloat(document.getElementById('anchorTickLower').value);
-            const anchorTickUpper = parseFloat(document.getElementById('anchorTickUpper').value);
-            const anchorEth = parseFloat(document.getElementById('anchorEth').value);
-            const anchorHarb = parseFloat(document.getElementById('anchorHarb').value);
-            const discoveryTickLower = parseFloat(document.getElementById('discoveryTickLower').value);
-            const discoveryTickUpper = parseFloat(document.getElementById('discoveryTickUpper').value);
-            const discoveryEth = parseFloat(document.getElementById('discoveryEth').value);
-            const discoveryHarb = parseFloat(document.getElementById('discoveryHarb').value);
-
-            simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
-
-            // Clear input fields after processing
-            document.getElementById('precedingAction').value = '';
-            document.getElementById('currentTick').value = '';
-            document.getElementById('floorTickLower').value = '';
-            document.getElementById('floorTickUpper').value = '';
-            document.getElementById('floorEth').value = '';
-            document.getElementById('floorHarb').value = '';
-            document.getElementById('anchorTickLower').value = '';
-            document.getElementById('anchorTickUpper').value = '';
-            document.getElementById('anchorEth').value = '';
-            document.getElementById('anchorHarb').value = '';
-            document.getElementById('discoveryTickLower').value = '';
-            document.getElementById('discoveryTickUpper').value = '';
-            document.getElementById('discoveryEth').value = '';
-            document.getElementById('discoveryHarb').value = '';
+            document.getElementById('csvInput').value = '';
         }
 
         function simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb) {
@@ -220,7 +135,7 @@
                         name: 'Current Tick'
                     }
                 ]
-            };
+            ];
 
             var newDiv = document.createElement('div');
             newDiv.style.marginBottom = '20px';
