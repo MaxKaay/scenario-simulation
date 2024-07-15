@@ -130,6 +130,19 @@
                     text: harb.map((h, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${h.toFixed(18)}<br>Range: [${tick_starts[i]}, ${tick_ends[i]}]`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
+                },
+                {
+                    x: [currentTick, currentTick],
+                    y: [0, Math.max(...harb) * 1.1],
+                    mode: 'lines',
+                    line: {
+                        color: 'black',
+                        width: 2,
+                        dash: 'dash'
+                    },
+                    name: 'Current Tick',
+                    hoverinfo: 'x',
+                    text: [`Current Price: ${currentTick}`]
                 }
             ];
 
@@ -142,21 +155,7 @@
                 },
                 yaxis: {
                     title: 'Liquidity (HARB)'
-                },
-                shapes: [
-                    {
-                        type: 'line',
-                        x0: currentTick,
-                        x1: currentTick,
-                        y0: 0,
-                        y1: Math.max(...harb) * 1.1,
-                        line: {
-                            color: 'black',
-                            width: 2,
-                            dash: 'dash'
-                        }
-                    }
-                ]
+                }
             };
 
             var newDiv = document.createElement('div');
@@ -194,6 +193,19 @@
                     text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}<br>Range: [${tick_starts[i]}, ${tick_ends[i]}]`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
+                },
+                {
+                    x: [currentTick, currentTick],
+                    y: [0, Math.max(...currentData) * 1.1],
+                    mode: 'lines',
+                    line: {
+                        color: 'black',
+                        width: 2,
+                        dash: 'dash'
+                    },
+                    name: 'Current Tick',
+                    hoverinfo: 'x',
+                    text: [`Current Price: ${currentTick}`]
                 }
             ];
 
@@ -206,21 +218,7 @@
                 },
                 yaxis: {
                     title: `Liquidity (${isETHDisplayed ? 'HARB' : 'ETH'})`
-                },
-                shapes: [
-                    {
-                        type: 'line',
-                        x0: currentTick,
-                        x1: currentTick,
-                        y0: 0,
-                        y1: Math.max(...currentData) * 1.1,
-                        line: {
-                            color: 'black',
-                            width: 2,
-                            dash: 'dash'
-                        }
-                    }
-                ]
+                }
             };
 
             button.setAttribute('data-isethdisplayed', (!isETHDisplayed).toString());
