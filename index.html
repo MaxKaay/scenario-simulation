@@ -92,7 +92,11 @@
                     }
                 }
 
-                simulate(actionAmount, additionalInfo, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
+                const ethFormatted = (floorEth + anchorEth + discoveryEth).toFixed(18);
+                const harbFormatted = (floorHarb + anchorHarb + discoveryHarb).toFixed(18);
+                const headline = `${precedingAction} ${additionalInfo} | Total ETH: ${ethFormatted}, Total HARB: ${harbFormatted}`;
+
+                simulate(headline, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb);
                 previousRow = row;
             });
 
@@ -100,7 +104,7 @@
             document.getElementById('csvInput').value = '';
         }
 
-        function simulate(precedingAction, additionalInfo, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb) {
+        function simulate(precedingAction, currentTick, floorTickLower, floorTickUpper, floorEth, floorHarb, anchorTickLower, anchorTickUpper, anchorEth, anchorHarb, discoveryTickLower, discoveryTickUpper, discoveryEth, discoveryHarb) {
             var tick_starts = [discoveryTickLower, anchorTickLower, floorTickLower];
             var tick_ends = [discoveryTickUpper, anchorTickUpper, floorTickUpper];
             var liquidity = [
@@ -123,14 +127,14 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: harb.map((h, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${h.toFixed(18)}`),
+                    text: harb.map((h, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${h.toFixed(18)}<br>Range: [${tick_starts[i]}, ${tick_ends[i]}]`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
             ];
 
             var layout = {
-                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction} ${additionalInfo}`,
+                title: `Liquidity, ETH, and HARB Distribution - ${precedingAction}`,
                 xaxis: {
                     title: 'Ticks',
                     tickvals: tick_starts.concat([currentTick], tick_ends),
@@ -158,7 +162,7 @@
             var newDiv = document.createElement('div');
             newDiv.className = 'chart-container';
             var newHeader = document.createElement('h3');
-            newHeader.textContent = layout.title;
+            newHeader.textContent = precedingAction;
             var newChart = document.createElement('div');
             newChart.style.width = '100%';
             newChart.style.height = '600px';
@@ -187,7 +191,7 @@
                         color: ['green', 'red', 'blue'],
                         opacity: 0.6
                     },
-                    text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}`),
+                    text: currentData.map((value, i) => `ETH: ${eth[i].toFixed(18)}<br>HARB: ${harb[i].toFixed(18)}<br>Range: [${tick_starts[i]}, ${tick_ends[i]}]`),
                     hoverinfo: 'text',
                     name: 'Liquidity'
                 }
